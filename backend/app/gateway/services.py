@@ -33,6 +33,26 @@ from deerflow.runtime import (
 
 logger = logging.getLogger(__name__)
 
+_CUSTOM_FIELDS_KEY_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+
+def validate_custom_fields(fields: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Validate custom_fields dict. Shared by HTTP API and channel paths."""
+    if fields is None:
+        return fields
+    if len(fields) > 50:
+        raise ValueError("custom_fields can contain at most 50 keys")
+    try:
+        serialized = json.dumps(fields)
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"custom_fields must be JSON-serializable: {e}") from e
+    if len(serialized) > 4096:
+        raise ValueError(f"custom_fields serialized size ({len(serialized)} bytes) exceeds 4KB limit")
+    for key in fields:
+        if not _CUSTOM_FIELDS_KEY_PATTERN.match(key):
+            raise ValueError(f"custom_fields key '{key}' must match ^[a-zA-Z_][a-zA-Z0-9_]*$")
+    return fields
+
 
 # ---------------------------------------------------------------------------
 # SSE formatting
@@ -303,6 +323,12 @@ async def start_run(
         for key in _CONTEXT_CONFIGURABLE_KEYS:
             if key in context:
                 configurable.setdefault(key, context[key])
+
+    # Inject custom_fields (per-run business attributes) into configurable.
+    custom_fields = getattr(body, "custom_fields", None)
+    if custom_fields:
+        logger.info("custom_fields received for thread %s: %s", thread_id, custom_fields)
+        config.setdefault("configurable", {})["custom_fields"] = custom_fields
 
     stream_modes = normalize_stream_modes(body.stream_mode)
 
