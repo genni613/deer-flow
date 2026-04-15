@@ -30,7 +30,7 @@ def get_system_model_name(task_override: str | None = None) -> str | None:
     from deerflow.config.system_models_config import get_system_models_config
 
     system_config = get_system_models_config()
-    if system_config.default is not None:
+    if system_config.default and system_config.default.strip():
         return system_config.default
 
     return None
