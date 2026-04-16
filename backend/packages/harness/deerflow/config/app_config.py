@@ -66,7 +66,7 @@ class AppConfig(BaseModel):
     subagents: SubagentsAppConfig = Field(default_factory=SubagentsAppConfig, description="Subagent runtime configuration")
     guardrails: GuardrailsConfig = Field(default_factory=GuardrailsConfig, description="Guardrail middleware configuration")
     circuit_breaker: CircuitBreakerConfig = Field(default_factory=CircuitBreakerConfig, description="LLM circuit breaker configuration")
-    system_models: SystemModelsConfig | None = Field(default=None, description="Default model configuration for system-level LLM tasks")
+    system_models: SystemModelsConfig = Field(default_factory=SystemModelsConfig, description="Default model configuration for system-level LLM tasks")
     model_config = ConfigDict(extra="allow", frozen=False)
     checkpointer: CheckpointerConfig | None = Field(default=None, description="Checkpointer configuration")
     stream_bridge: StreamBridgeConfig | None = Field(default=None, description="Stream bridge configuration")
@@ -163,6 +163,7 @@ class AppConfig(BaseModel):
         # Load system_models config; always call to reset singleton on reload.
         system_models_val = config_data.get("system_models")
         load_system_models_config_from_dict(system_models_val if isinstance(system_models_val, dict) else {})
+        config_data.setdefault("system_models", {})
 
         # Load extensions config separately (it's in a different file)
         extensions_config = ExtensionsConfig.from_file()
