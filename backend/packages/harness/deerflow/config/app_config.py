@@ -163,7 +163,8 @@ class AppConfig(BaseModel):
         # Load system_models config; always call to reset singleton on reload.
         system_models_val = config_data.get("system_models")
         load_system_models_config_from_dict(system_models_val if isinstance(system_models_val, dict) else {})
-        config_data.setdefault("system_models", {})
+        if not isinstance(config_data.get("system_models"), dict):
+            config_data["system_models"] = {}
 
         # Load extensions config separately (it's in a different file)
         extensions_config = ExtensionsConfig.from_file()
