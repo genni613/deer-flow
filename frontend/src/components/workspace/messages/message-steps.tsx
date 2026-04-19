@@ -42,7 +42,7 @@ export interface CoTToolCallStep {
   type: "toolCall";
   name: string;
   args: Record<string, unknown>;
-  result?: string;
+  result?: string | Record<string, unknown>;
 }
 
 export type CoTStep = CoTReasoningStep | CoTToolCallStep;
