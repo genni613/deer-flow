@@ -28,6 +28,7 @@ import { CitationLink } from "../citations/citation-link";
 import { FlipDisplay } from "../flip-display";
 
 import { MarkdownContent } from "./markdown-content";
+import { LightbulbIcon, ToolCall, convertToSteps } from "./message-steps";
 
 export function SubtaskCard({
   className,
@@ -51,6 +52,14 @@ export function SubtaskCard({
       return <Loader2Icon className="size-3 animate-spin" />;
     }
   }, [task.status]);
+
+  const historySteps = useMemo(() => {
+    if (!task.messageHistory || task.messageHistory.length === 0) {
+      return null;
+    }
+    return convertToSteps(task.messageHistory);
+  }, [task.messageHistory]);
+
   return (
     <ChainOfThought
       className={cn("relative w-full gap-2 rounded-lg border py-0", className)}
@@ -123,6 +132,11 @@ export function SubtaskCard({
           </Button>
         </div>
         <ChainOfThoughtContent className="px-4 pb-4">
+          {task.subagent_type && (
+            <div className="text-muted-foreground mb-2 text-xs">
+              {t.subtasks.subagentType(task.subagent_type)}
+            </div>
+          )}
           {task.prompt && (
             <ChainOfThoughtStep
               label={
@@ -135,7 +149,29 @@ export function SubtaskCard({
               }
             ></ChainOfThoughtStep>
           )}
+          {historySteps && historySteps.length > 0 && (
+            <div className="mt-2 border-t pt-2">
+              {historySteps.map((step) =>
+                step.type === "reasoning" ? (
+                  <ChainOfThoughtStep
+                    key={step.id}
+                    label={
+                      <MarkdownContent
+                        content={step.reasoning ?? ""}
+                        isLoading={isLoading}
+                        rehypePlugins={rehypePlugins}
+                      />
+                    }
+                    icon={<LightbulbIcon className="size-4" />}
+                  />
+                ) : (
+                  <ToolCall key={step.id} {...step} isLoading={isLoading} />
+                ),
+              )}
+            </div>
+          )}
           {task.status === "in_progress" &&
+            !historySteps &&
             task.latestMessage &&
             hasToolCalls(task.latestMessage) && (
               <ChainOfThoughtStep

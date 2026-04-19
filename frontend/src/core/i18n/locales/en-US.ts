@@ -293,6 +293,11 @@ export const enUS: Translations = {
     in_progress: "Running subtask",
     completed: "Subtask completed",
     failed: "Subtask failed",
+    taskAnalysis: "Task analysis",
+    analyzingTask: "Analyzing task...",
+    decomposedInto: (count: number) =>
+      `Decomposed into ${count} subtask${count === 1 ? "" : "s"}`,
+    subagentType: (type: string) => `Agent: ${type}`,
   },
 
   // Token Usage

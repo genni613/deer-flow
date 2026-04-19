@@ -269,7 +269,11 @@ export function useThreadStream({
           task_id: string;
           message: AIMessage;
         };
-        updateSubtask({ id: e.task_id, latestMessage: e.message });
+        updateSubtask({
+          id: e.task_id,
+          latestMessage: e.message,
+          _appendMessage: e.message,
+        });
         return;
       }
 

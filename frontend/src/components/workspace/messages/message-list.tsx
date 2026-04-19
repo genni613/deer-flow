@@ -28,6 +28,7 @@ import { MarkdownContent } from "./markdown-content";
 import { MessageGroup } from "./message-group";
 import { MessageListItem } from "./message-list-item";
 import { MessageTokenUsageList } from "./message-token-usage";
+import { OrchestratorThinking } from "./orchestrator-thinking";
 import { MessageListSkeleton } from "./skeleton";
 import { SubtaskCard } from "./subtask-card";
 
@@ -173,16 +174,16 @@ export function MessageList({
             )) {
               if (hasReasoning(message)) {
                 results.push(
-                  <MessageGroup
+                  <OrchestratorThinking
                     key={"thinking-group-" + message.id}
-                    messages={[message]}
+                    message={message}
                     isLoading={thread.isLoading}
                   />,
                 );
               }
               results.push(
                 <div
-                  key="subtask-count"
+                  key={"subtask-count-" + message.id}
                   className="text-muted-foreground pt-2 text-sm font-normal"
                 >
                   {t.subtasks.executing(tasks.size)}
