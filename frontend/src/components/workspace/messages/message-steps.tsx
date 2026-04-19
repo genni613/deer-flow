@@ -353,9 +353,7 @@ export function ToolCall({
         icon={WrenchIcon}
       >
         {!description && argsSummary && (
-          <ChainOfThoughtSearchResult>
-            {argsSummary}
-          </ChainOfThoughtSearchResult>
+          <ChainOfThoughtSearchResult>{argsSummary}</ChainOfThoughtSearchResult>
         )}
       </ChainOfThoughtStep>
     );
