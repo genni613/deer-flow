@@ -21,6 +21,7 @@ import { CodeBlock } from "@/components/ai-elements/code-block";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractReasoningContentFromMessage,
+  extractTextFromMessage,
   findToolCallResult,
 } from "@/core/messages/utils";
 import { extractTitleFromMarkdown } from "@/core/utils/markdown";
@@ -51,14 +52,25 @@ export function convertToSteps(messages: Message[]): CoTStep[] {
   for (const message of messages) {
     if (message.type === "ai") {
       const reasoning = extractReasoningContentFromMessage(message);
+      // Show reasoning_content if present; otherwise fall back to text content
+      // as a thinking indicator (many models put analysis in content, not reasoning_content)
       if (reasoning) {
-        const step: CoTReasoningStep = {
+        steps.push({
           id: message.id,
           messageId: message.id,
           type: "reasoning",
-          reasoning: extractReasoningContentFromMessage(message),
-        };
-        steps.push(step);
+          reasoning,
+        });
+      } else {
+        const textContent = extractTextFromMessage(message);
+        if (textContent) {
+          steps.push({
+            id: message.id,
+            messageId: message.id,
+            type: "reasoning",
+            reasoning: textContent,
+          });
+        }
       }
       for (const tool_call of message.tool_calls ?? []) {
         if (tool_call.name === "task") {
@@ -320,12 +332,32 @@ export function ToolCall({
   } else {
     const description: string | undefined = (args as { description: string })
       ?.description;
+    // For unknown tools, show key args as a summary
+    const argsSummary = Object.entries(args)
+      .filter(
+        ([key, val]) =>
+          key !== "description" &&
+          typeof val === "string" &&
+          val.trim().length > 0,
+      )
+      .map(([key, val]) => `${key}: ${val as string}`)
+      .join(", ");
     return (
       <ChainOfThoughtStep
         key={id}
-        label={description ?? t.toolCalls.useTool(name)}
+        label={
+          description
+            ? `${description}${argsSummary ? ` — ${argsSummary}` : ""}`
+            : t.toolCalls.useTool(name)
+        }
         icon={WrenchIcon}
-      ></ChainOfThoughtStep>
+      >
+        {!description && argsSummary && (
+          <ChainOfThoughtSearchResult>
+            {argsSummary}
+          </ChainOfThoughtSearchResult>
+        )}
+      </ChainOfThoughtStep>
     );
   }
 }
