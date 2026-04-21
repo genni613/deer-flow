@@ -20,7 +20,9 @@ function makeAIMessage(overrides: Record<string, unknown> = {}) {
 
 test("extractReasoningContentFromMessage returns reasoning_content when present", () => {
   const msg = makeAIMessage({
-    additional_kwargs: { reasoning_content: "I should analyze this carefully." },
+    additional_kwargs: {
+      reasoning_content: "I should analyze this carefully.",
+    },
   });
 
   expect(extractReasoningContentFromMessage(msg)).toBe(
@@ -31,7 +33,11 @@ test("extractReasoningContentFromMessage returns reasoning_content when present"
 test("extractReasoningContentFromMessage returns null for non-AI messages", () => {
   const msg = { type: "human", id: "msg-1", content: "hello" };
 
-  expect(extractReasoningContentFromMessage(msg as Parameters<typeof extractReasoningContentFromMessage>[0])).toBeNull();
+  expect(
+    extractReasoningContentFromMessage(
+      msg as Parameters<typeof extractReasoningContentFromMessage>[0],
+    ),
+  ).toBeNull();
 });
 
 test("extractReasoningContentFromMessage returns null when content is empty string", () => {
@@ -42,7 +48,9 @@ test("extractReasoningContentFromMessage returns null when content is empty stri
 
 test("hasReasoning returns false for AI message with no reasoning", () => {
   const msg = makeAIMessage({
-    tool_calls: [{ id: "tc-1", name: "task", args: { description: "do stuff" } }],
+    tool_calls: [
+      { id: "tc-1", name: "task", args: { description: "do stuff" } },
+    ],
   });
 
   expect(hasReasoning(msg)).toBe(false);

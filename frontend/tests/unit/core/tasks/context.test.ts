@@ -105,7 +105,9 @@ test("subtask with messageHistory should not show fallback UI", () => {
         type: "ai",
         id: "msg-1",
         content: [{ type: "text", text: "thinking..." }],
-      } as unknown as Subtask["messageHistory"] extends (infer T)[] | undefined ? T : never,
+      } as unknown as Subtask["messageHistory"] extends (infer T)[] | undefined
+        ? T
+        : never,
     ],
   });
 
