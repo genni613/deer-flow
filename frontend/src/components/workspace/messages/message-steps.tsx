@@ -163,25 +163,25 @@ export function ToolCall({
         {Array.isArray(results) && (
           <ChainOfThoughtSearchResults>
             {results.map((item) => (
-                <Tooltip key={item.image_url} content={item.title}>
-                  <a
-                    className="size-24 overflow-hidden rounded-lg object-cover"
-                    href={item.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className="bg-accent size-24">
-                      <img
-                        className="size-full object-cover"
-                        src={item.thumbnail_url}
-                        alt={item.title}
-                        width={100}
-                        height={100}
-                      />
-                    </div>
-                  </a>
-                </Tooltip>
-              ))}
+              <Tooltip key={item.image_url} content={item.title}>
+                <a
+                  className="size-24 overflow-hidden rounded-lg object-cover"
+                  href={item.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="bg-accent size-24">
+                    <img
+                      className="size-full object-cover"
+                      src={item.thumbnail_url}
+                      alt={item.title}
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                </a>
+              </Tooltip>
+            ))}
           </ChainOfThoughtSearchResults>
         )}
       </ChainOfThoughtStep>
