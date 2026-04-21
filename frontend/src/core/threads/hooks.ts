@@ -271,6 +271,10 @@ export function useThreadStream({
         };
         updateSubtask({
           id: e.task_id,
+          status: "in_progress",
+          description: "",
+          prompt: "",
+          subagent_type: "",
           latestMessage: e.message,
           _appendMessage: e.message,
         });

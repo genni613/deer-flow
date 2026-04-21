@@ -12,7 +12,6 @@ import {
   groupMessages,
   hasContent,
   hasPresentFiles,
-  hasReasoning,
   hasToolCalls,
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
@@ -172,15 +171,13 @@ export function MessageList({
             for (const message of group.messages.filter(
               (message) => message.type === "ai",
             )) {
-              if (hasReasoning(message)) {
-                results.push(
-                  <OrchestratorThinking
-                    key={"thinking-group-" + message.id}
-                    message={message}
-                    isLoading={thread.isLoading}
-                  />,
-                );
-              }
+              results.push(
+                <OrchestratorThinking
+                  key={"thinking-group-" + message.id}
+                  message={message}
+                  isLoading={thread.isLoading}
+                />,
+              );
               results.push(
                 <div
                   key={"subtask-count-" + message.id}

@@ -171,7 +171,7 @@ export function SubtaskCard({
             </div>
           )}
           {task.status === "in_progress" &&
-            !historySteps &&
+            (!historySteps || historySteps.length === 0) &&
             task.latestMessage &&
             hasToolCalls(task.latestMessage) && (
               <ChainOfThoughtStep
