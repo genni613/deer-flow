@@ -42,8 +42,9 @@ export function SubtaskCard({
   const { t } = useI18n();
   const [collapsed, setCollapsed] = useState(true);
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
-  const task = useSubtask(taskId)!;
+  const task = useSubtask(taskId);
   const icon = useMemo(() => {
+    if (!task) return undefined;
     if (task.status === "completed") {
       return <CheckCircleIcon className="size-3" />;
     } else if (task.status === "failed") {
@@ -51,14 +52,16 @@ export function SubtaskCard({
     } else if (task.status === "in_progress") {
       return <Loader2Icon className="size-3 animate-spin" />;
     }
-  }, [task.status]);
+  }, [task]);
 
   const historySteps = useMemo(() => {
-    if (!task.messageHistory || task.messageHistory.length === 0) {
+    if (!task?.messageHistory || task.messageHistory.length === 0) {
       return null;
     }
     return convertToSteps(task.messageHistory);
-  }, [task.messageHistory]);
+  }, [task?.messageHistory]);
+
+  if (!task) return null;
 
   return (
     <ChainOfThought

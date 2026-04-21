@@ -42,7 +42,7 @@ export interface CoTToolCallStep {
   type: "toolCall";
   name: string;
   args: Record<string, unknown>;
-  result?: string | Record<string, unknown>;
+  result?: unknown;
 }
 
 export type CoTStep = CoTReasoningStep | CoTToolCallStep;
@@ -115,7 +115,7 @@ export function ToolCall({
   messageId?: string;
   name: string;
   args: Record<string, unknown>;
-  result?: string | Record<string, unknown>;
+  result?: unknown;
   isLast?: boolean;
   isLoading?: boolean;
 }) {
@@ -162,8 +162,7 @@ export function ToolCall({
       <ChainOfThoughtStep key={id} label={label} icon={SearchIcon}>
         {Array.isArray(results) && (
           <ChainOfThoughtSearchResults>
-            {Array.isArray(results) &&
-              results.map((item) => (
+            {results.map((item) => (
                 <Tooltip key={item.image_url} content={item.title}>
                   <a
                     className="size-24 overflow-hidden rounded-lg object-cover"

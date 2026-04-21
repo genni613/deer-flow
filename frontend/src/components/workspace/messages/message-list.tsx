@@ -122,9 +122,9 @@ export function MessageList({
             for (const message of group.messages) {
               if (message.type === "ai") {
                 for (const toolCall of message.tool_calls ?? []) {
-                  if (toolCall.name === "task") {
+                  if (toolCall.name === "task" && toolCall.id) {
                     const task: Subtask = {
-                      id: toolCall.id!,
+                      id: toolCall.id,
                       subagent_type: toolCall.args.subagent_type,
                       description: toolCall.args.description,
                       prompt: toolCall.args.prompt,

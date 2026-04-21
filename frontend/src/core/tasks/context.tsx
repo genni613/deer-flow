@@ -42,23 +42,32 @@ export function useSubtask(id: string) {
 export function useUpdateSubtask() {
   const { setTasks } = useSubtaskContext();
   const updateSubtask = useCallback(
-    (task: Partial<Subtask> & { id: string; _appendMessage?: AIMessage }) => {
-      const { _appendMessage: appendMsg, ...rest } = task;
+    (task: Partial<Subtask> & { id: string }) => {
       setTasks((prev) => {
         const current = prev[task.id];
-        const updated = { ...current, ...rest } as Subtask;
-
-        if (appendMsg) {
-          const history = [...(current?.messageHistory ?? [])];
-          if (!history.some((m) => m.id === appendMsg.id)) {
-            history.push(appendMsg);
-          }
-          updated.messageHistory = history;
-        }
+        const updated = { ...current, ...task } as Subtask;
         return { ...prev, [task.id]: updated };
       });
     },
     [setTasks],
   );
   return updateSubtask;
+}
+
+export function useAppendMessage() {
+  const { setTasks } = useSubtaskContext();
+  const appendMessage = useCallback(
+    (taskId: string, message: AIMessage) => {
+      setTasks((prev) => {
+        const current = prev[taskId];
+        if (!current) return prev;
+        const history = [...(current.messageHistory ?? [])];
+        if (history.some((m) => m.id === message.id)) return prev;
+        history.push(message);
+        return { ...prev, [taskId]: { ...current, messageHistory: history } };
+      });
+    },
+    [setTasks],
+  );
+  return appendMessage;
 }
