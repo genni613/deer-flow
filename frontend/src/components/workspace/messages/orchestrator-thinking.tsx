@@ -12,8 +12,6 @@ import { useI18n } from "@/core/i18n/hooks";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
-import { Shimmer } from "../../ai-elements/shimmer";
-
 import { MarkdownContent } from "./markdown-content";
 import { extractReasoningContentFromMessage } from "./message-steps";
 
@@ -62,15 +60,7 @@ export function OrchestratorThinking({
             <div className="flex w-full items-center justify-between">
               <ChainOfThoughtStep
                 className="font-normal"
-                label={
-                  isLoading ? (
-                    <Shimmer duration={3} spread={3}>
-                      {t.subtasks.analyzingTask}
-                    </Shimmer>
-                  ) : (
-                    t.subtasks.taskAnalysis
-                  )
-                }
+                label={t.subtasks.taskAnalysis}
               />
               <ChevronUp
                 className={cn(

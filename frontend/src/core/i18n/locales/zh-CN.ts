@@ -280,7 +280,6 @@ export const zhCN: Translations = {
     completed: "子任务已完成",
     failed: "子任务失败",
     taskAnalysis: "任务分析",
-    analyzingTask: "分析任务中...",
     decomposedInto: (count: number) => `拆分为 ${count} 个子任务`,
     subagentType: (type: string) => `智能体: ${type}`,
   },

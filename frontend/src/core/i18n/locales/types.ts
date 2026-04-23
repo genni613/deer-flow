@@ -225,7 +225,6 @@ export interface Translations {
     completed: string;
     failed: string;
     taskAnalysis: string;
-    analyzingTask: string;
     decomposedInto: (count: number) => string;
     subagentType: (type: string) => string;
   };

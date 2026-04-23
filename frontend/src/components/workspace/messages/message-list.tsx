@@ -1,4 +1,5 @@
 import type { BaseStream } from "@langchain/langgraph-sdk/react";
+import { useEffect, useRef } from "react";
 
 import {
   Conversation,
@@ -51,6 +52,59 @@ export function MessageList({
   const rehypePlugins = useRehypeSplitWordsIntoSpans(thread.isLoading);
   const updateSubtask = useUpdateSubtask();
   const messages = thread.messages;
+
+  // Sync subtask state from messages in useEffect to avoid setState during render
+  const syncedTaskIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    for (const message of messages) {
+      if (message.type === "ai") {
+        for (const toolCall of message.tool_calls ?? []) {
+          if (toolCall.name === "task" && toolCall.id) {
+            if (!syncedTaskIdsRef.current.has(toolCall.id)) {
+              syncedTaskIdsRef.current.add(toolCall.id);
+              updateSubtask({
+                id: toolCall.id,
+                subagent_type: toolCall.args.subagent_type,
+                description: toolCall.args.description,
+                prompt: toolCall.args.prompt,
+                status: "in_progress",
+              });
+            }
+          }
+        }
+      } else if (message.type === "tool") {
+        const taskId = message.tool_call_id;
+        if (taskId) {
+          const result = extractTextFromMessage(message);
+          if (result.startsWith("Task Succeeded. Result:")) {
+            updateSubtask({
+              id: taskId,
+              status: "completed",
+              result: result.split("Task Succeeded. Result:")[1]?.trim(),
+            });
+          } else if (result.startsWith("Task failed.")) {
+            updateSubtask({
+              id: taskId,
+              status: "failed",
+              error: result.split("Task failed.")[1]?.trim(),
+            });
+          } else if (result.startsWith("Task timed out")) {
+            updateSubtask({
+              id: taskId,
+              status: "failed",
+              error: result,
+            });
+          } else {
+            updateSubtask({
+              id: taskId,
+              status: "in_progress",
+            });
+          }
+        }
+      }
+    }
+  }, [messages, updateSubtask]);
+
   if (thread.isThreadLoading && messages.length === 0) {
     return <MessageListSkeleton />;
   }
@@ -123,44 +177,11 @@ export function MessageList({
               if (message.type === "ai") {
                 for (const toolCall of message.tool_calls ?? []) {
                   if (toolCall.name === "task" && toolCall.id) {
-                    const task: Subtask = {
+                    tasks.add({
                       id: toolCall.id,
                       subagent_type: toolCall.args.subagent_type,
                       description: toolCall.args.description,
                       prompt: toolCall.args.prompt,
-                      status: "in_progress",
-                    };
-                    updateSubtask(task);
-                    tasks.add(task);
-                  }
-                }
-              } else if (message.type === "tool") {
-                const taskId = message.tool_call_id;
-                if (taskId) {
-                  const result = extractTextFromMessage(message);
-                  if (result.startsWith("Task Succeeded. Result:")) {
-                    updateSubtask({
-                      id: taskId,
-                      status: "completed",
-                      result: result
-                        .split("Task Succeeded. Result:")[1]
-                        ?.trim(),
-                    });
-                  } else if (result.startsWith("Task failed.")) {
-                    updateSubtask({
-                      id: taskId,
-                      status: "failed",
-                      error: result.split("Task failed.")[1]?.trim(),
-                    });
-                  } else if (result.startsWith("Task timed out")) {
-                    updateSubtask({
-                      id: taskId,
-                      status: "failed",
-                      error: result,
-                    });
-                  } else {
-                    updateSubtask({
-                      id: taskId,
                       status: "in_progress",
                     });
                   }
